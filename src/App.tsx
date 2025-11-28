@@ -27,10 +27,11 @@ function App() {
       description:
         "This is a placeholder description for Assignment 1. It covers the fundamental concepts and initial research phase of the Capsumi project.",
       authors: [
-        { name: "Author 1", pdfUrl: "/assignments/assignment1-author1.pdf" },
-        { name: "Author 2", pdfUrl: "/assignments/assignment1-author2.pdf" },
-        { name: "Author 3", pdfUrl: "/assignments/assignment1-author3.pdf" },
-        { name: "Author 4", pdfUrl: "/assignments/assignment1-author4.pdf" },
+        { name: "Valerii Matviiv", pdfUrl: "/assignments/1-Valerii-Matviiv.pdf" },
+        { name: "Author 2",        pdfUrl: "/assignments/assignment1-author2.pdf" },
+        { name: "Author 3",        pdfUrl: "/assignments/assignment1-author3.pdf" },
+        { name: "Author 4",        pdfUrl: "/assignments/assignment1-author4.pdf" },
+        
       ],
     },
     {
@@ -50,21 +51,21 @@ function App() {
   const projectStages = [
     {
       id: 1,
-      title: "Progress Milestone 1",
+      title: "Progress Stage 1",
       description: "Elaborate the project proposal and set up the project web site. Describe the problem you will try to solve during the project. Shortly, characterize the target user population. Describe the main goal of the project and a possible solution to the problem. Identifying possible similar applications.",
       pdfUrl: "/project-stages/stage1.pdf"
     },
     {
       id: 2,
-      title: "Progress Milestone 2",
+      title: "Progress Stage 2",
       description: "Identification and characterization of the target users, tasks and scenarios. In this stage, it is intended to examine and understand the problem space. Who are the main users of the system? What tasks users want to perform with the system? What functionalities should be made available by the system? How is the work environment?",
       pdfUrl: "/project-stages/stage2.pdf"
     },
     {
       id: 3,
-      title: "Progress Milestone 3",
-      description: "This is a placeholder description for project progress milestone 3. Here you would find detailed information about the achievements, challenges, and next steps for this phase of the Capsumi project.",
-      pdfUrl: undefined
+      title: "Stage 3: 1st Prototype & Usability Test",
+      description: "Paper prototype of Capsumi, an app that allows people to create digital time capsules. It documents the usability test with user scenarios, sketches, storyboards, and observations of usability problems and user feedback.",
+      pdfUrl: "/project-stages/stage3.pdf"
     }
   ]
 
@@ -301,7 +302,7 @@ function App() {
                 className="neomorph group rounded-[1.25rem] p-6 text-left transition-all hover:neomorph-pressed active:neomorph-inset sm:p-8"
               >
                 <h3 className="text-lg font-bold text-foreground group-hover:text-accent sm:text-xl">
-                  Milestone {item.id}
+                  Stage {item.id}
                 </h3>
                 <p className="mt-3 text-sm text-muted-foreground sm:mt-4 sm:text-base">View progress details</p>
               </button>
@@ -329,7 +330,7 @@ function App() {
                 className="neomorph group rounded-[1.25rem] p-6 text-left transition-all hover:neomorph-pressed active:neomorph-inset sm:p-8"
               >
                 <h3 className="text-lg font-bold text-foreground group-hover:text-accent sm:text-xl">
-                  Milestone {item.id}
+                  Stage {item.id}
                 </h3>
                 <p className="mt-3 text-sm text-muted-foreground sm:mt-4 sm:text-base">View progress details</p>
               </button>
