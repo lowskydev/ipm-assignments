@@ -66,6 +66,12 @@ function App() {
       title: "Stage 3: 1st Prototype & Usability Test",
       description: "Paper prototype of Capsumi, an app that allows people to create digital time capsules. It documents the usability test with user scenarios, sketches, storyboards, and observations of usability problems and user feedback.",
       pdfUrl: "/project-stages/stage3.pdf"
+    },
+    {
+      id: 4,
+      title: "Stage 4: Computational prototype",
+      description: "Blah Blah Blah Am not creative enough to write this rn.",
+      pdfUrl: "/project-stages/stage4.pdf"
     }
   ]
 
