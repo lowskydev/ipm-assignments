@@ -42,18 +42,6 @@ function App() {
         
       ],
     },
-    {
-      id: 2,
-      title: "Assignment 2",
-      description:
-        "This is a placeholder description for Assignment 2. It focuses on the implementation details and technical specifications of the project.",
-      authors: [
-        { name: "Author 1", pdfUrl: "/assignments/assignment2-author1.pdf" },
-        { name: "Author 2", pdfUrl: "/assignments/assignment2-author2.pdf" },
-        { name: "Author 3", pdfUrl: "/assignments/assignment2-author3.pdf" },
-        { name: "Author 4", pdfUrl: "/assignments/assignment2-author4.pdf" },
-      ],
-    },
   ]
 
   const projectStages = [
