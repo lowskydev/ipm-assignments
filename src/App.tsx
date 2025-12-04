@@ -11,6 +11,7 @@ interface ModalContent {
   title: string
   description: string
   authors?: { name: string; pdfUrl: string }[]
+  documents?: { name: string; pdfUrl: string }[] // Added to support multiple files
   pdfUrl?: string
 }
 
@@ -70,8 +71,17 @@ function App() {
     {
       id: 4,
       title: "Stage 4: Computational prototype",
-      description: "Blah Blah Blah Am not creative enough to write this rn.",
+      description: "Computational prototype implementation details and functionality overview.",
       pdfUrl: "/project-stages/stage4.pdf"
+    },
+    {
+      id: 5,
+      title: "Stage 5: Heuristic Evaluation",
+      description: "This stage covers the heuristic evaluation process. It includes the evaluation report we sent regarding another group's project and the evaluation report we received from our peers (Group 17) about Capsumi.",
+      documents: [
+        { name: "Evaluation Sent (By Us)", pdfUrl: "/project-stages/stage5-sent.pdf" },
+        { name: "Evaluation Received (By Group 17)", pdfUrl: "/project-stages/stage5-received.pdf" }
+      ]
     }
   ]
 
@@ -302,13 +312,14 @@ function App() {
                   openModal({
                     title: item.title,
                     description: item.description,
-                    pdfUrl: item.pdfUrl
+                    pdfUrl: item.pdfUrl,
+                    documents: item.documents
                   })
                 }
                 className="neomorph group rounded-[1.25rem] p-6 text-left transition-all hover:neomorph-pressed active:neomorph-inset sm:p-8"
               >
                 <h3 className="text-lg font-bold text-foreground group-hover:text-accent sm:text-xl">
-                  Stage {item.id}
+                  {item.title}
                 </h3>
                 <p className="mt-3 text-sm text-muted-foreground sm:mt-4 sm:text-base">View progress details</p>
               </button>
@@ -385,7 +396,26 @@ function App() {
                 </ul>
               </div>
             )}
-            {modalContent.pdfUrl && (
+            {modalContent.documents && (
+              <div className="mt-6 sm:mt-8">
+                <h4 className="mb-3 text-lg font-bold text-foreground sm:mb-4 sm:text-xl">Documents:</h4>
+                <ul className="space-y-2 sm:space-y-3">
+                  {modalContent.documents.map((doc, index) => (
+                    <li key={index}>
+                      <a
+                        href={doc.pdfUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block text-sm font-semibold text-foreground transition-colors hover:text-accent sm:text-base"
+                      >
+                        {doc.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {modalContent.pdfUrl && !modalContent.documents && (
               <div className="mt-6 sm:mt-8">
                 <a
                   href={modalContent.pdfUrl}
