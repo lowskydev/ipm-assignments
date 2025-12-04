@@ -11,7 +11,8 @@ interface ModalContent {
   title: string
   description: string
   authors?: { name: string; pdfUrl: string }[]
-  documents?: { name: string; pdfUrl: string }[] // Added to support multiple files
+  documents?: { name: string; pdfUrl: string }[]
+  images?: { src: string; alt: string }[]
   pdfUrl?: string
 }
 
@@ -20,6 +21,7 @@ function App() {
   const [modalContent, setModalContent] = useState<ModalContent | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null)
 
   const assignments: Assignment[] = [
     {
@@ -88,27 +90,30 @@ function App() {
   const uiStages = [
     {
       id: 1,
-      title: "UI Development 1",
-      description: "This is a placeholder for UI development milestone 1. Here you would find detailed information about the achievements, challenges, and next steps for this phase of the Capsumi project.",
-      pdfUrl: undefined
+      title: "Stage 1: Logo Suggestions",
+      description: "Initial sketches and concepts for the Capsumi logo, exploring different visual identities.",
+      images: Array.from({ length: 1 }, (_, i) => ({
+        src: `/ui-stages/Stage-1/${i + 1}.jpeg`,
+        alt: `Logo Suggestion ${i + 1}`
+      }))
     },
     {
       id: 2,
-      title: "UI Development 2",
-      description: "This is a placeholder for UI development milestone 2. Here you would find detailed information about the achievements, challenges, and next steps for this phase of the Capsumi project.",
-      pdfUrl: undefined
+      title: "Stage 2: Logo Development",
+      description: "Refinement and development of the chosen logo concept, establishing the final brand mark.",
+      images: Array.from({ length: 4 }, (_, i) => ({
+        src: `/ui-stages/Stage-2/${i + 1}.jpeg`,
+        alt: `Logo Development ${i + 1}`
+      }))
     },
     {
       id: 3,
-      title: "UI Development 3",
-      description: "This is a placeholder for UI development milestone 3. Here you would find detailed information about the achievements, challenges, and next steps for this phase of the Capsumi project.",
-      pdfUrl: undefined
-    },
-    {
-      id: 4,
-      title: "UI Development 4",
-      description: "This is a placeholder for UI development milestone 4. Here you would find detailed information about the achievements, challenges, and next steps for this phase of the Capsumi project.",
-      pdfUrl: undefined
+      title: "Stage 3: Prototype",
+      description: "High-fidelity screens and interface designs for the Capsumi application.",
+      images: Array.from({ length: 24 }, (_, i) => ({
+        src: `/ui-stages/Stage-3/${i + 1}.jpeg`,
+        alt: `Prototype Screen ${i + 1}`
+      }))
     }
   ]
 
@@ -129,6 +134,32 @@ function App() {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
     document.documentElement.classList.toggle('dark')
+  }
+
+  const downloadImage = (e: React.MouseEvent, src: string, name: string) => {
+    e.stopPropagation() // Prevent opening the lightbox
+    const link = document.createElement('a')
+    link.href = src
+    link.download = name || 'image'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const downloadAllImages = (images: { src: string; alt: string }[]) => {
+    // Note: Downloading many files at once might be blocked by browsers.
+    // A proper implementation would likely require a backend or a library like JSZip to bundle them.
+    // Here we attempt to trigger them individually with a small delay.
+    images.forEach((img, index) => {
+      setTimeout(() => {
+        const link = document.createElement('a')
+        link.href = img.src
+        link.download = img.alt || `image-${index}`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }, index * 200)
+    })
   }
 
   return (
@@ -341,13 +372,13 @@ function App() {
                   openModal({
                     title: item.title,
                     description: item.description,
-                    pdfUrl: item.pdfUrl
+                    images: item.images
                   })
                 }
                 className="neomorph group rounded-[1.25rem] p-6 text-left transition-all hover:neomorph-pressed active:neomorph-inset sm:p-8"
               >
                 <h3 className="text-lg font-bold text-foreground group-hover:text-accent sm:text-xl">
-                  Stage {item.id}
+                  {item.title}
                 </h3>
                 <p className="mt-3 text-sm text-muted-foreground sm:mt-4 sm:text-base">View progress details</p>
               </button>
@@ -356,13 +387,14 @@ function App() {
         </div>
       </section>
 
+      {/* Main Modal */}
       {isModalOpen && modalContent && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/25 p-4 backdrop-blur-sm"
           onClick={closeModal}
         >
           <div
-            className="neomorph-modal relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[1.25rem] bg-background p-6 sm:max-h-[80vh] sm:p-8"
+            className="neomorph-modal relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[1.25rem] bg-background p-6 sm:max-h-[80vh] sm:p-8"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -415,6 +447,45 @@ function App() {
                 </ul>
               </div>
             )}
+            {modalContent.images && (
+              <div className="mt-6 sm:mt-8">
+                <div className="mb-4 flex items-center justify-between">
+                  <h4 className="text-lg font-bold text-foreground sm:text-xl">Images:</h4>
+                  <button
+                    onClick={() => downloadAllImages(modalContent.images || [])}
+                    className="neomorph-flat flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:neomorph-pressed hover:text-accent sm:text-sm"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download All
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {modalContent.images.map((img, index) => (
+                    <div
+                      key={index}
+                      className="group relative cursor-pointer overflow-hidden rounded-lg border border-border"
+                      onClick={() => setSelectedImage(img)}
+                    >
+                      <img src={img.src} alt={img.alt} className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center">
+                        <span className="text-white text-sm font-semibold bg-black/50 px-3 py-1 rounded-full">View</span>
+                      </div>
+                      <button
+                        onClick={(e) => downloadImage(e, img.src, img.alt)}
+                        className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 text-foreground opacity-0 shadow-sm transition-all hover:bg-accent hover:text-white group-hover:opacity-100"
+                        title="Download Image"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {modalContent.pdfUrl && !modalContent.documents && (
               <div className="mt-6 sm:mt-8">
                 <a
@@ -427,6 +498,41 @@ function App() {
                 </a>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Modal for Images */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-h-screen max-w-screen-2xl" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute -top-12 right-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:top-4 sm:right-4 z-50"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              src={selectedImage.src}
+              alt={selectedImage.alt}
+              className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl"
+            />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+                <button
+                    onClick={(e) => downloadImage(e, selectedImage.src, selectedImage.alt)}
+                    className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/30"
+                >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download
+                </button>
+            </div>
           </div>
         </div>
       )}
