@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 
 interface Assignment {
   id: number
@@ -21,7 +21,12 @@ function App() {
   const [modalContent, setModalContent] = useState<ModalContent | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null)
+  // Changed to store index for navigation
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
+
+  // Refs for touch navigation
+  const touchStartX = useRef<number>(0)
+  const touchEndX = useRef<number>(0)
 
   const assignments: Assignment[] = [
     {
@@ -137,7 +142,7 @@ function App() {
   }
 
   const downloadImage = (e: React.MouseEvent, src: string, name: string) => {
-    e.stopPropagation() // Prevent opening the lightbox
+    e.stopPropagation()
     const link = document.createElement('a')
     link.href = src
     link.download = name || 'image'
@@ -147,9 +152,6 @@ function App() {
   }
 
   const downloadAllImages = (images: { src: string; alt: string }[]) => {
-    // Note: Downloading many files at once might be blocked by browsers.
-    // A proper implementation would likely require a backend or a library like JSZip to bundle them.
-    // Here we attempt to trigger them individually with a small delay.
     images.forEach((img, index) => {
       setTimeout(() => {
         const link = document.createElement('a')
@@ -161,6 +163,61 @@ function App() {
       }, index * 200)
     })
   }
+
+  // Navigation Handlers
+  const handleNext = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    if (selectedImageIndex !== null && modalContent?.images) {
+      setSelectedImageIndex((prev) => (prev! + 1) % modalContent.images!.length)
+    }
+  }
+
+  const handlePrev = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    if (selectedImageIndex !== null && modalContent?.images) {
+      setSelectedImageIndex((prev) => (prev! - 1 + modalContent.images!.length) % modalContent.images!.length)
+    }
+  }
+
+  // Keyboard Navigation
+  useEffect(() => {
+    if (selectedImageIndex === null) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") handleNext()
+      if (e.key === "ArrowLeft") handlePrev()
+      if (e.key === "Escape") setSelectedImageIndex(null)
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [selectedImageIndex, modalContent])
+
+  // Touch Navigation Handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return
+    const distance = touchStartX.current - touchEndX.current
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
+
+    if (isLeftSwipe) handleNext()
+    if (isRightSwipe) handlePrev()
+    
+    // Reset
+    touchStartX.current = 0
+    touchEndX.current = 0
+  }
+
+  // Determine current image
+  const currentImage = selectedImageIndex !== null && modalContent?.images 
+    ? modalContent.images[selectedImageIndex] 
+    : null
 
   return (
     <div className="min-h-screen">
@@ -466,7 +523,7 @@ function App() {
                     <div
                       key={index}
                       className="group relative cursor-pointer overflow-hidden rounded-lg border border-border"
-                      onClick={() => setSelectedImage(img)}
+                      onClick={() => setSelectedImageIndex(index)}
                     >
                       <img src={img.src} alt={img.alt} className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
                       <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center">
@@ -503,36 +560,85 @@ function App() {
       )}
 
       {/* Lightbox Modal for Images */}
-      {selectedImage && (
+      {currentImage && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
-          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/95 p-4 backdrop-blur-sm"
+          onClick={() => setSelectedImageIndex(null)}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
-          <div className="relative max-h-screen max-w-screen-2xl" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute -top-12 right-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:top-4 sm:right-4 z-50"
+          {/* Top Controls */}
+          <button
+            onClick={() => setSelectedImageIndex(null)}
+            className="absolute top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Main Image Container */}
+          <div className="relative flex h-full w-full max-w-7xl items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            
+            {/* Left Arrow (Desktop) */}
+            <button 
+                onClick={handlePrev}
+                className="absolute left-0 z-50 hidden p-4 text-white/50 transition-colors hover:text-white md:block"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+                <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
             </button>
+
             <img
-              src={selectedImage.src}
-              alt={selectedImage.alt}
-              className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl"
+              src={currentImage.src}
+              alt={currentImage.alt}
+              className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl"
             />
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                <button
-                    onClick={(e) => downloadImage(e, selectedImage.src, selectedImage.alt)}
-                    className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/30"
-                >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    Download
-                </button>
+
+            {/* Right Arrow (Desktop) */}
+            <button 
+                onClick={handleNext}
+                className="absolute right-0 z-50 hidden p-4 text-white/50 transition-colors hover:text-white md:block"
+            >
+                <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+          </div>
+
+          {/* Bottom Control Bar */}
+          <div className="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-6" onClick={(e) => e.stopPropagation()}>
+            {/* Mobile Prev */}
+            <button onClick={handlePrev} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md md:hidden">
+               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+
+            {/* Counter */}
+            <div className="rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-md">
+                {selectedImageIndex! + 1} / {modalContent?.images?.length}
             </div>
+
+            {/* Mobile Next */}
+            <button onClick={handleNext} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md md:hidden">
+               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+
+            {/* Download Button */}
+            <button
+                onClick={(e) => downloadImage(e, currentImage.src, currentImage.alt)}
+                className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20"
+            >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span className="hidden sm:inline">Download</span>
+            </button>
           </div>
         </div>
       )}
