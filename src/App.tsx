@@ -77,7 +77,13 @@ function App() {
         { name: "Evaluation Sent (By Us)", pdfUrl: "/project-stages/stage5-sent.pdf" },
         { name: "Evaluation Received (By Group 17)", pdfUrl: "/project-stages/stage5-received.pdf" }
       ]
-    }
+    },
+    {
+      id: 6,
+      title: "Stage 6: Evaluation results & project presentation",
+      description: "Final version of the project after 2-cycle user-testing & corrections",
+      pdfUrl: "/project-stages/stage6.pdf"
+    },
   ]
 
   const uiStages = [
