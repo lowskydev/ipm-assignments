@@ -36,7 +36,7 @@ function App() {
         "This is a placeholder description for Assignment 1. It covers the fundamental concepts and initial research phase of the Capsumi project.",
       authors: [
         { name: "Valerii Matviiv", pdfUrl: "/assignments/1-Valerii-Matviiv.pdf" },
-        { name: "Author 2",        pdfUrl: "/assignments/assignment1-author2.pdf" },
+        { name: "Wiktor Szydlowski",        pdfUrl: "/assignments/1-Wiktor-Szydlowski.pdf" },
         { name: "Author 3",        pdfUrl: "/assignments/assignment1-author3.pdf" },
         { name: "Author 4",        pdfUrl: "/assignments/assignment1-author4.pdf" },
         
