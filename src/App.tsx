@@ -37,7 +37,7 @@ function App() {
       authors: [
         { name: "Valerii Matviiv", pdfUrl: "/assignments/1-Valerii-Matviiv.pdf" },
         { name: "Wiktor Szydlowski",        pdfUrl: "/assignments/1-Wiktor-Szydlowski.pdf" },
-        { name: "Author 3",        pdfUrl: "/assignments/assignment1-author3.pdf" },
+        { name: "Author 3",        pdfUrl: "/assignments/1-Markiian-Voloshyn.pdf" },
         { name: "Author 4",        pdfUrl: "/assignments/assignment1-author4.pdf" },
         
       ],
